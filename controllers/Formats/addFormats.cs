@@ -38,18 +38,17 @@ public class addFormats : ControllerBase
             return Ok(new
             {
                 Success = true,
-                Message = "User retrieved successfully",
+                Message = SuccessMessages.FormatAddedSucces
             });
         }
         catch (Exception ex)
         {
             var url = HttpContext.Request.Host + HttpContext.Request.Path;
             Utility.setLog(url, ex.Message, Dns.GetHostName());
-            // return Ok(Utility.ResponseMessage("something went wrong please check your input", false));
             return StatusCode(StatusCodes.Status500InternalServerError, new
             {
                 Success = false,
-                Message = "An unexpected error occurred while processing your request. please try again later",
+                Message = ErrorMessages.UnexpectedError,
             });
         }
         finally
