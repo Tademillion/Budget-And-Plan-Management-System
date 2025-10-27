@@ -3,6 +3,7 @@ using System.Net;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 namespace BudgetP;
+
 public class addFormats : ControllerBase
 {
     DbconUtility DbConn = new DbconUtility(DbconUtility.GetConn("Budgetplanconnstring"));
@@ -34,13 +35,22 @@ public class addFormats : ControllerBase
                 int num = Convert.ToInt32(nextnum);
                 Utility.Updatemnextnum(DbConn, num, "SRC");
             }
-            return Ok(Utility.ResponseMessage("the  data is inserted successfully", false));
+            return Ok(new
+            {
+                Success = true,
+                Message = "User retrieved successfully",
+            });
         }
         catch (Exception ex)
         {
             var url = HttpContext.Request.Host + HttpContext.Request.Path;
             Utility.setLog(url, ex.Message, Dns.GetHostName());
-            return Ok(Utility.ResponseMessage("something went wrong please check your input", false));
+            // return Ok(Utility.ResponseMessage("something went wrong please check your input", false));
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                Success = false,
+                Message = "An unexpected error occurred while processing your request. please try again later",
+            });
         }
         finally
         {
