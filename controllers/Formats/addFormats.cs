@@ -38,6 +38,7 @@ public class addFormats : ControllerBase
             return Ok(new
             {
                 Success = true,
+                StatusCode = 200,
                 Message = SuccessMessages.FormatAddedSucces
             });
         }
