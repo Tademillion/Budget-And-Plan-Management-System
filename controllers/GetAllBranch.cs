@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Microsoft.AspNetCore.Mvc;
 namespace BudgetP;
+
 public class GetAllBranch : ControllerBase
 {
     DbconUtility DbConn = new DbconUtility(DbconUtility.GetConn("Budgetplanconnstring"));
