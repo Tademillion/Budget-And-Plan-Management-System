@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Microsoft.AspNetCore.Mvc;
 namespace BudgetP;
+
 public class getFormats : ControllerBase
 {
     DbconUtility DbConn = new DbconUtility(DbconUtility.GetConn("Budgetplanconnstring"));
@@ -85,8 +86,8 @@ public class getFormats : ControllerBase
             DbConn.CloseConn();
         }
 
-
     }
+
     [HttpGet("getformatbyid")]
     [BaseUrlRoute()]
     public async Task<ActionResult> getFormatsByID(int id)
@@ -142,4 +143,130 @@ public class getFormats : ControllerBase
 
 
     }
+    // getFormats
+    [HttpGet("geMainFormats")]
+    [BaseUrlRoute()]
+    public async Task<ActionResult> getMainFormats()
+    {
+        DbConn.OpenConn();
+        List<object> sources = new List<object>();
+        try
+        {
+            string formatName = string.Empty; string formatID = string.Empty;
+            string parentcode = string.Empty;
+            DataTable dt = new DataTable();
+            string source = "select * from tblMainFormats  ";
+            DbConn.FillData(dt, source);
+            if (dt.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    formatName = row["description"] + "";
+                    formatID = row["formatId"] + "";
+                    var userResponse = new
+                    {
+                        FormatName = formatName,
+                        FormatId = formatID
+                    };
+                    sources.Add(userResponse);
+                }
+            }
+            return Ok(Utility.ResponseMessage(sources, false));
+
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+        finally
+        {
+            DbConn.CloseConn();
+        }
+
+    }
+
+
+    [HttpGet("geSubMainFormats")]
+    [BaseUrlRoute()]
+    public async Task<ActionResult> getSubMainFormats()
+    {
+        DbConn.OpenConn();
+        List<object> sources = new List<object>();
+        try
+        {
+            string formatName = string.Empty; string formatID = string.Empty;
+            string parentcode = string.Empty;
+            DataTable dt = new DataTable();
+            string source = "select * from tblSubMainFormats ";
+            DbConn.FillData(dt, source);
+            if (dt.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    formatName = row["description"] + "";
+                    formatID = row["formatId"] + "";
+                    var userResponse = new
+                    {
+                        FormatName = formatName,
+                        FormatId = formatID
+                    };
+                    sources.Add(userResponse);
+                }
+            }
+            return Ok(Utility.ResponseMessage(sources, false));
+
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+        finally
+        {
+            DbConn.CloseConn();
+        }
+
+    }
+
+
+    [HttpGet("geSubFormats")]
+    [BaseUrlRoute()]
+    public async Task<ActionResult> getSubFormats()
+    {
+        DbConn.OpenConn();
+        List<object> sources = new List<object>();
+        try
+        {
+            string formatName = string.Empty; string formatID = string.Empty;
+            string parentcode = string.Empty;
+            DataTable dt = new DataTable();
+            string source = "select * from tblSubFormats ";
+            DbConn.FillData(dt, source);
+            if (dt.Rows.Count > 0)
+            {
+                foreach (DataRow row in dt.Rows)
+                {
+                    formatName = row["description"] + "";
+                    formatID = row["formatId"] + "";
+                    var userResponse = new
+                    {
+                        FormatName = formatName,
+                        FormatId = formatID
+                    };
+                    sources.Add(userResponse);
+                }
+            }
+            return Ok(Utility.ResponseMessage(sources, false));
+
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+        finally
+        {
+            DbConn.CloseConn();
+        }
+
+    }
+
 }

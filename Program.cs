@@ -93,7 +93,7 @@ app.Use(async (context, next) =>
     await next();
 });
 // Apply Middleware
-app.UseMiddleware<RequestLoggingMiddleware>();
+// app.UseMiddleware<RequestLoggingMiddleware>();
 
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
