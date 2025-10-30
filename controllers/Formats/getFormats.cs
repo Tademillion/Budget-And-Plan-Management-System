@@ -186,18 +186,17 @@ public class getFormats : ControllerBase
     }
 
 
-    [HttpGet("geSubMainFormats")]
+    [HttpGet("getSubMainFormats")]
     [BaseUrlRoute()]
-    public async Task<ActionResult> getSubMainFormats()
+    public async Task<ActionResult> getSubMainFormats(string parentcode)
     {
         DbConn.OpenConn();
         List<object> sources = new List<object>();
         try
         {
             string formatName = string.Empty; string formatID = string.Empty;
-            string parentcode = string.Empty;
             DataTable dt = new DataTable();
-            string source = "select * from tblSubMainFormats ";
+            string source = "select * from tblSubMainFormats  where subMainCode='" + parentcode + "'";
             DbConn.FillData(dt, source);
             if (dt.Rows.Count > 0)
             {
@@ -228,18 +227,17 @@ public class getFormats : ControllerBase
     }
 
 
-    [HttpGet("geSubFormats")]
+    [HttpGet("getSubFormats")]
     [BaseUrlRoute()]
-    public async Task<ActionResult> getSubFormats()
+    public async Task<ActionResult> getSubFormats(string parentcode)
     {
         DbConn.OpenConn();
         List<object> sources = new List<object>();
         try
         {
             string formatName = string.Empty; string formatID = string.Empty;
-            string parentcode = string.Empty;
             DataTable dt = new DataTable();
-            string source = "select * from tblSubFormats ";
+            string source = "select * from tblSubFormats  where parentcode='" + parentcode + "'";
             DbConn.FillData(dt, source);
             if (dt.Rows.Count > 0)
             {
