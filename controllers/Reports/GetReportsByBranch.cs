@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Microsoft.AspNetCore.Mvc;
 namespace BudgetP;
+
 [ApiController]
 public class GetOperationalReportsByBranch : ControllerBase
 {
@@ -49,7 +50,8 @@ public class GetOperationalReportsByBranch : ControllerBase
     [BaseUrlRoute()]
     public async Task<IActionResult> getOperationReportByDistrict()
     {
-        string report = "select * from View_reportBy_Districts order by deptdesc ";
+        //string report = "select * from View_reportBy_Districts order by dept desc ";
+        string report = "select * from View_reportBy_Districts order by DISTRICT ";
         DataTable dt = new DataTable();
         DbConn.FillData(dt, report);
         List<object> Obj = new List<object>();
@@ -76,7 +78,7 @@ public class GetOperationalReportsByBranch : ControllerBase
                     may = row["may"].ToString(),
                     jun = row["jun"].ToString(),
                     description = row["description"].ToString(),
-                    District = row["DeptDesc"].ToString()
+                    District = row["DISTRICT"].ToString()
                 };
                 Obj.Add(userResponse);
             }

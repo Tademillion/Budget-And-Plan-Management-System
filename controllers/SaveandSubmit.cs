@@ -202,7 +202,7 @@ public class SaveandSubmit : ControllerBase
             // set log
             var url = HttpContext.Request.Host + HttpContext.Request.Path;
             Utility.setLog(url, ex.Message, Dns.GetHostName());
-            return StatusCode(StatusCodes.Status500InternalServerError, "somthing is went wrong please");
+            return StatusCode(StatusCodes.Status500InternalServerError, ErrorMessages.UnexpectedError);
         }
         finally
         {

@@ -55,7 +55,7 @@ builder.Services.AddCors(options =>
                 "http://10.100.13.44:3004",
                 "https://10.100.13.44:3004",
                 "http://localhost:3004",
-                "http://172.16.239.172:3000"
+                "http://172.16.239.169:3000"
                 )
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -83,7 +83,7 @@ app.Use(async (context, next) =>
 {
     if (context.Request.Method == HttpMethods.Options)
     {
-        context.Response.Headers.Append("Access-Control-Allow-Origin", "http://172.16.239.172:3000");
+        context.Response.Headers.Append("Access-Control-Allow-Origin", "http://172.16.239.169:3000");
         context.Response.Headers.Append("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         context.Response.Headers.Append("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, Origin, X-Requested-With");
         context.Response.Headers.Append("Access-Control-Allow-Credentials", "true");
@@ -93,7 +93,7 @@ app.Use(async (context, next) =>
     await next();
 });
 // Apply Middleware
-// app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {

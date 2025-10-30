@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 namespace BudgetP;
+
 public class approveReject : ControllerBase
 {
     DbconUtility DbConn = new DbconUtility(DbconUtility.GetConn("Budgetplanconnstring"));
@@ -28,7 +29,7 @@ public class approveReject : ControllerBase
             // take history
             // if (Utility.createHistory(DbConn, "update", status.userId, "tblformData", "parent_code in(select MenuCode from tblMenus where ParentCode='" + status.branch_code + "')"))
             // { 
-            changestatus = "update  tblformData set district_status='" + status.status + "',Reason='" + status.reason + "' where branch_code='" + status.branch_code + "'";
+            changestatus = "update  tblformData set district_status='" + status.status + "',Reason='" + status.reason + "' where branch_code='" + status.branch_code + "' and ";
             if (DbConn.Execute(changestatus))
             {
                 if (Convert.ToInt16(status.status) == 1)
