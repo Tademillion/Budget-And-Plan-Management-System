@@ -25,4 +25,8 @@ public static class SuccessMessages
     // ==============================
     public const string FormatAddedSucces = "Format is Added Succesfully";
 
+    // ==============================
+    // Others
+    // ==============================
+    public const string SavedDataSuccess = "Data Saved Successfully";
 }

@@ -277,8 +277,7 @@ SELECT @jsonResult = (
             return NotFound(new ApiResponse<object>
             {
                 Success = true,
-                Message = "Data retrieved successfully.",
-
+                Message = "The Data for this Code is not exist.",
             });
 
         }

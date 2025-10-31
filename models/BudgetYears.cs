@@ -1,0 +1,7 @@
+public class BudgetYear
+{
+    public string FiscalYear { get; set; }
+    public DateTime openingDate { get; set; }
+    public DateTime closingDate { get; set; }
+
+}
