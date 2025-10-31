@@ -1,6 +1,9 @@
 ﻿using System.Data;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+
 namespace BudgetP;
+
 
 public class getFormats : ControllerBase
 {
@@ -226,7 +229,70 @@ public class getFormats : ControllerBase
 
     }
 
+    //   get SubFormat with JSon
+    [HttpGet("getSubFormatsByLevel")]
+    [BaseUrlRoute()]
+    public async Task<ActionResult> getSubFormatsLevel(string parentcode)
+    {
+        DbConn.OpenConn();
+        List<object> sources = new List<object>();
+        try
+        {
+            string formatName = string.Empty; string formatID = string.Empty;
+            DataTable dt = new DataTable();
+            string source = @"DECLARE @jsonResult NVARCHAR(MAX);
+SELECT @jsonResult = (
+    SELECT  
+        m.Id AS MainFormatId,  
+        m.Description AS Description,  
+        ISNULL((
+            SELECT  
+                s.Id,  
+                s.Description
+            FROM tblSubFormats s  
+            WHERE s.ParentCode = m.formatId
+            FOR JSON PATH
+        ), '[]') AS SubFormats  
+    FROM tblSubMainFormats m   
+    WHERE m.parentcode = '" + parentcode + "'  FOR JSON PATH);SELECT @jsonResult AS JsonResult;";
+            DbConn.FillData(dt, source);
+            object resultValue = dt.Rows[0][0];
 
+            if (resultValue != null && resultValue != DBNull.Value && !string.IsNullOrEmpty(resultValue.ToString()))
+            {
+                List<object> result = new List<object>();
+                string json = dt.Rows[0][0].ToString();
+                Console.WriteLine("the data is ", json);
+                var jsonObj = System.Text.Json.JsonSerializer.Deserialize<object>(json);
+                Console.WriteLine("the resfreuif", jsonObj);
+                result.Add(jsonObj);
+
+                return Ok(new ApiResponse<object>
+                {
+                    Success = true,
+                    Message = "Data retrieved successfully.",
+                    Data = result
+                });
+            }
+            return NotFound(new ApiResponse<object>
+            {
+                Success = true,
+                Message = "Data retrieved successfully.",
+
+            });
+
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+        finally
+        {
+            DbConn.CloseConn();
+        }
+
+    }
+    // 
     [HttpGet("getSubFormats")]
     [BaseUrlRoute()]
     public async Task<ActionResult> getSubFormats(string parentcode)
@@ -266,5 +332,7 @@ public class getFormats : ControllerBase
         }
 
     }
+
+
 
 }
