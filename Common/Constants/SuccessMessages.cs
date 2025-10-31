@@ -29,4 +29,5 @@ public static class SuccessMessages
     // Others
     // ==============================
     public const string SavedDataSuccess = "Data Saved Successfully";
+    public const string UpdatedDataSuccess = "Data updated Successfully";
 }
