@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 namespace BudgetP;
 
+// [MiddlewareFilter(typeof(BudgetTimingMiddleware))]
 public class addFormats : ControllerBase
 {
     DbconUtility DbConn = new DbconUtility(DbconUtility.GetConn("Budgetplanconnstring"));

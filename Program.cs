@@ -1,3 +1,4 @@
+using BudgetP;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.WebEncoders.Testing;
@@ -19,6 +20,7 @@ builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<BudgetTimingFilter>();
 // builder.Services.AddSingleton<IConfigurationManager>(new ConfigurationManager(builder.Configuration));
 builder.Services.AddSwaggerGen(c =>
 {
@@ -93,7 +95,8 @@ app.Use(async (context, next) =>
     await next();
 });
 // Apply Middleware
-// app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
+// app.UsebBudgetTiming();
 
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {

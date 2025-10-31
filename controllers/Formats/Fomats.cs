@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -262,9 +263,7 @@ SELECT @jsonResult = (
             {
                 List<object> result = new List<object>();
                 string json = dt.Rows[0][0].ToString();
-                Console.WriteLine("the data is ", json);
                 var jsonObj = System.Text.Json.JsonSerializer.Deserialize<object>(json);
-                Console.WriteLine("the resfreuif", jsonObj);
                 result.Add(jsonObj);
 
                 return Ok(new ApiResponse<object>
@@ -331,7 +330,67 @@ SELECT @jsonResult = (
         }
 
     }
-
+    // add SubFormats
+    [HttpPost("addSubFormats")]
+    [BaseUrlRoute()]
+    public async Task<ActionResult> addSubFormats([FromBody] Formats format)
+    {
+        if (format == null || string.IsNullOrEmpty(format.discription))
+        {
+            return BadRequest(" invalid menu");
+        }
+        DbConn.OpenConn();
+        try
+        {
+            DataTable dt;
+            DataRow drow;
+            dt = DbConn.GetDataTable("tblSubFormats");
+            drow = dt.NewRow();
+            string nextnum = Utility.getnextnum(DbConn, format.parentcode);
+            if (Convert.ToInt32(nextnum) < 1)
+            {
+                return NotFound(new
+                {
+                    Success = false,
+                    StatusCode = 200,
+                    Message = "the parent Code is not exist"
+                });
+            }
+            drow["description"] = format.discription;
+            drow["parentcode"] = format.parentcode;
+            drow["formatId"] = format.parentcode + nextnum;
+            drow["crtby"] = Dns.GetHostName();
+            drow["crtws"] = Dns.GetHostName();
+            drow["crtdt"] = DateTime.Now;
+            string query = DbconUtility.GetQuery(1, drow);
+            if (DbConn.Insert(drow, false))
+            {
+                int num = Convert.ToInt32(nextnum);
+                Utility.Updatemnextnum(DbConn, num, format.parentcode);
+            }
+            return Ok(new
+            {
+                Success = true,
+                StatusCode = 200,
+                Message = SuccessMessages.FormatAddedSucces
+            });
+        }
+        catch (Exception ex)
+        {
+            var url = HttpContext.Request.Host + HttpContext.Request.Path;
+            Utility.setLog(url, ex.Message, Dns.GetHostName());
+            Console.WriteLine(ex);
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                Success = false,
+                Message = ErrorMessages.UnexpectedError,
+            });
+        }
+        finally
+        {
+            DbConn.CloseConn();
+        }
+    }
 
 
 }

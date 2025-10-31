@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace BudgetP;
 
 [ApiController]
+[ServiceFilter(typeof(BudgetTimingFilter))]
 public class BudgetYears : ControllerBase
 {
 
     DbconUtility DbConn = new DbconUtility(DbconUtility.GetConn("Budgetplanconnstring"));
+
     [HttpPost("addBudgetYears")]
     [BaseUrlRoute()]
     public async Task<ActionResult> BudgetYearsAdd([FromBody] BudgetYear budget)
     {
-
-
         DataTable dt;
         DataRow drow;
         dt = DbConn.GetDataTable("tblBudgetYear");
@@ -46,14 +46,13 @@ public class BudgetYears : ControllerBase
             DbConn.CloseConn();
         }
     }
-    // 
+
     [HttpPut("updateBudgetFall/{budgetyear}")]
     [BaseUrlRoute()]
     public async Task<ActionResult> UpdateBudgetYears([FromBody] updateBudgetYearModel budget, string budgetyear)
     {
         try
         {
-
             string query = "update  tblBudgetYear set openingDate='" + budget.openingDate + "',closingDate='" + budget.closingDate + "' where FiscalYear='" + budgetyear + "'";
             DbConn.Execute(query);
             return Ok(new ApiResponse<object>

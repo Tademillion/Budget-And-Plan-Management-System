@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Net;
 namespace BudgetP;
+
 public static class Utility
 {
     public static Object ResponseMessage(object data, bool success)
@@ -59,35 +60,40 @@ public static class Utility
             DbConn.CloseConn();
         }
     }
-    public static string getnextnum(DbconUtility DbConn, string parametre)
+    public static string getnextnum(DbconUtility DbConn, string parentcode)
     {
         try
         {
             List<object> data = new List<object>();
             DataTable dt = new DataTable();
-            string exist = "select * from tbldefault where parametre='" + parametre + "'";
+            string exist = "select * from tbldefault where parametre='" + parentcode + "'";
             DbConn.FillData(dt, exist);
-            int num = Convert.ToInt32(dt.Rows[0]["next_no"].ToString());
-            string nextnum = string.Empty;
-            if (num < 10)
+            if (dt.Rows.Count > 0)
             {
-                // num = num + 1;
-                nextnum = (num + 1).ToString("D2");
+                int num = Convert.ToInt32(dt.Rows[0]["next_no"].ToString());
+                string nextnum = string.Empty;
+                if (num < 10)
+                {
+                    // num = num + 1;
+                    nextnum = (num + 1).ToString("D2");
+                }
+                else
+                    nextnum = Convert.ToString(num + 1);
+                //update nextnum
+                return nextnum;
             }
-            else
-                nextnum = Convert.ToString(num + 1);
-            //update nextnum
-            return nextnum;
+            return "0";
+
         }
         catch (Exception ex)
         {
             throw new Exception(ex.Message);
         }
     }
-    public static void Updatemnextnum(DbconUtility dbconn, int num, string parametre)
+    public static void Updatemnextnum(DbconUtility dbconn, int num, string parentcode)
     {
         dbconn.OpenConn();
-        string updatenextnum = "update tbldefault set next_no =" + num + " where parametre='" + parametre + "'";
+        string updatenextnum = "update tbldefault set next_no =" + num + " where parametre='" + parentcode + "'";
         dbconn.Execute(updatenextnum);
         dbconn.CloseConn();
     }
@@ -178,6 +184,26 @@ public static class Utility
         catch (Exception)
         {
             throw;
+        }
+    }
+    public static bool IsBudgetOpen()
+    {
+        DbconUtility DbConn = new DbconUtility(DbconUtility.GetConn("Budgetplanconnstring"));
+        try
+        {
+            //  get the  fiscal years
+            var today = DateTime.Today;
+            string checkOpen = "select top 1 * from tblbudgetyear where openingDate>='" + today + "' and closingDate<='" + today + "' order by closingDate desc";
+            DataTable dt = new DataTable();
+
+            DbConn.FillData(dt, checkOpen);
+            if (dt.Rows.Count > 0)
+                return true;
+            return false;
+        }
+        catch (Exception ex)
+        {
+            return false;
         }
     }
 
