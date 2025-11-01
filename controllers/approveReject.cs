@@ -22,46 +22,49 @@ public class approveReject : ControllerBase
             string isapproved = "select ISNULL( status,0) as status from tblapproveRejectBudget where branch_code='" + status.branch_code + "' and parentcode='" + status.parentcode + "'";
             DataTable dt2 = new DataTable();
             DbConn.FillData(dt2, isapproved);
-            if (Convert.ToInt16(dt2.Rows[0]["status"]) == 1)
+            if (dt2.Rows.Count > 0)
             {
-                return Ok(Utility.ResponseMessages("", "data is already approved", false));
+                if (Convert.ToInt16(dt2.Rows[0]["status"]) == 1)
+                {
+                    return Ok(Utility.ResponseMessages("", "data is already approved", false));
+                }
+                string reject = "update  tblapproveRejectBudget set status='" + status.status + "' ,reason='" + status.reason + "' where branch_code='" + status.branch_code + "' and parentcode='" + status.parentcode + "'";
+                var result = DbConn.Execute(reject);
+                if (result)
+                    return Ok(new ApiResponse<object>
+                    {
+                        Message = "the data is rejected succesfully",
+                        Success = true
+                    });
             }
             // take history
             // if (Utility.createHistory(DbConn, "update", status.userId, "tblformData", "parent_code in(select MenuCode from tblMenus where ParentCode='" + status.branch_code + "')"))
             // { 
-            changestatus = "update  tblapproveRejectBudget set status='" + status.status + "',Reason='" + status.reason + "' where branch_code='" + status.branch_code + "' and parentcode='" + status.parentcode + "' ";
-            if (DbConn.Execute(changestatus))
+            //  reject the data
+
+            DataTable dt;
+            DataRow drow;
+            dt = DbConn.GetDataTable("tblapproveRejectBudget");
+            drow = dt.NewRow();
+            drow["branch_code"] = status.branch_code;
+            drow["parentcode"] = status.parentcode;
+            drow["reason"] = status.reason;
+            drow["status"] = status.status;
+            drow["crtby"] = status.UserId;
+            drow["budgetYear"] = "2025";
+            DbConn.Insert(drow, false);
+
+            return Ok(new ApiResponse<object>
             {
-                if (Convert.ToInt16(status.status) == 1)
-                    return Ok(new ApiResponse<object>
-                    {
-                        Message = "the data is approved succesfully",
-                        Success = true
-                    });
-                else if (Convert.ToInt16(status.status) == 2)
-                    return Ok(new ApiResponse<object>
-                    {
-                        Message = "the data is rejected  succesfully",
-                        Success = true
-                    });
-                else
-                    return BadRequest(new ApiResponse<object>
-                    {
-                        Message = "invalid status",
-                        Success = false
-                    });
-            }
-            else
-                return BadRequest(new ApiResponse<object>
-                {
-                    Message = ErrorMessages.UnexpectedError,
-                    Success = false
-                });
+                Message = "the data is approved succesfully",
+                Success = true
+            });
 
         }
         catch (Exception ex)
         {
             // set log
+            Console.WriteLine(ex);
             return BadRequest(Utility.ResponseMessages("", "something went wrong please try againg", false));
         }
         finally
@@ -69,77 +72,64 @@ public class approveReject : ControllerBase
             DbConn.CloseConn();
         }
     }
-    [HttpPost("approverejectbydistrict")]
+    [HttpPost("approverejectByStrategy")]
     [BaseUrlRoute()]
-    public async Task<ActionResult> approverejectbydistrict([FromBody] approvedbyModel status)
+    public async Task<ActionResult> approverejectbydistrict([FromBody] ApproveRejected_M status)
     {
-        // create history
         DbConn.OpenConn();
         string changestatus = string.Empty;
         try
         {
-            DataTable dt;
-            DataRow row;
-            dt = DbConn.GetDataTable("tbl_district_status");
-            row = dt.NewRow();
-            row["districtcode"] = status.district_code;
-            row["fiscalYear"] = Utility.getFiscalYear(DbConn);
-            row["updatedept"] = status.bywhom;
-            row["reason"] = status.reason;
-            row["status"] = status.status;
-            row["UserId"] = status.UserId;
-            string checkapprovedrejected = "select * from tbl_district_status where districtcode='" + status.district_code + "' and fiscalYear='" + Utility.getFiscalYear(DbConn) + "'  and  updatedept='" + status.bywhom + "'";
-            string isapprovedbefore = "select * from tbl_district_status where districtcode='" + status.district_code + "' and fiscalYear='" + Utility.getFiscalYear(DbConn) + "'  and status='1' and updatedept='" + status.bywhom + "' ";
+            if (status == null)
+            {
+                return BadRequest("body cannot be null");
+            }
+            string isapproved = "select ISNULL( status,0) as status from tblapproveRejectBudget where branch_code='" + status.branch_code + "' and parentcode='" + status.parentcode + "'";
             DataTable dt2 = new DataTable();
-            DbConn.FillData(dt2, isapprovedbefore);
+            DbConn.FillData(dt2, isapproved);
             if (dt2.Rows.Count > 0)
             {
-                return Ok(Utility.ResponseMessages("", "its already approved", false));
+                if (Convert.ToInt16(dt2.Rows[0]["status"]) == 1)
+                {
+                    return Ok(Utility.ResponseMessages("", "data is already approved", false));
+                }
+                string reject = "update  tblapproveRejectBudget set status='" + status.status + "' ,reason='" + status.reason + "' where district_code='" + status.districtcode + "' and parentcode='" + status.parentcode + "'";
+                var result = DbConn.Execute(reject);
+                if (result)
+                    return Ok(new ApiResponse<object>
+                    {
+                        Message = "the data is rejected succesfully",
+                        Success = true
+                    });
             }
-            DataTable dt1 = new DataTable();
-            DbConn.FillData(dt1, checkapprovedrejected);
-            string query = string.Empty;
-            if (dt1.Rows.Count > 0)
+            // take history
+            // if (Utility.createHistory(DbConn, "update", status.userId, "tblformData", "parent_code in(select MenuCode from tblMenus where ParentCode='" + status.branch_code + "')"))
+            // { 
+            //  reject the data
+
+            DataTable dt;
+            DataRow drow;
+            dt = DbConn.GetDataTable("tblapproveRejectBudget");
+            drow = dt.NewRow();
+            drow["district_code"] = status.districtcode;
+            drow["parentcode"] = status.parentcode;
+            drow["reason"] = status.reason;
+            drow["status"] = status.status;
+            drow["crtby"] = status.UserId;
+            drow["budgetYear"] = "2025";
+            DbConn.Insert(drow, false);
+
+            return Ok(new ApiResponse<object>
             {
-                query = DbconUtility.GetQuery(2, row);
-                query = query + " districtcode='" + status.district_code + "' and fiscalYear='" + Utility.getFiscalYear(DbConn) + "' ";
-                DbConn.Execute(query);
-                if (Convert.ToInt16(status.status) == 1)
-                {
-                    return Ok(Utility.ResponseMessages("", "data is approved successfully", false));
-                }
-                else if (Convert.ToInt16(status.status) == 2)
-                {
-                    return Ok(Utility.ResponseMessages("", "data is rejected ", false));
-                }
-                else
-                    return Ok(Utility.ResponseMessages("", "invalid status", false));
-                // update status
-            }
-            else
-            {
-                // insert new row
-                query = DbconUtility.GetQuery(1, row);
-                if (!DbConn.Insert(row, false))
-                {
-                    Utility.setLog("approvereject", query, status.UserId);
-                    return Ok(Utility.ResponseMessages("", "something went wrong please check your input", false));
-                }
-                else
-                {
-                    if (Convert.ToInt16(status.status) == 1)
-                        return Ok(Utility.ResponseMessages("", "data is successfully approved", false));
-                    else if (Convert.ToInt16(status.status) == 2)
-                        return Ok(Utility.ResponseMessages("", "data is  rejected", false));
-                    else
-                        return Ok(Utility.ResponseMessages("", "invalid status", false));
-                }
-            }
+                Message = "the data is approved succesfully",
+                Success = true
+            });
+
         }
         catch (Exception ex)
         {
             // set log
-            // return StatusCode(StatusCodes.Status500InternalServerError, "status is not changed");
+            Console.WriteLine(ex);
             return BadRequest(Utility.ResponseMessages("", "something went wrong please try againg", false));
         }
         finally
