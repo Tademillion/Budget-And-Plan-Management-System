@@ -19,33 +19,45 @@ public class approveReject : ControllerBase
             {
                 return BadRequest("body cannot be null");
             }
-            string isapproved = "select ISNULL( district_status,0) as district_status from tblformData where branch_code='" + status.branch_code + "'";
+            string isapproved = "select ISNULL( status,0) as status from tblapproveRejectBudget where branch_code='" + status.branch_code + "' and parentcode='" + status.parentcode + "'";
             DataTable dt2 = new DataTable();
             DbConn.FillData(dt2, isapproved);
-            if (Convert.ToInt16(dt2.Rows[0]["district_status"]) == 1)
+            if (Convert.ToInt16(dt2.Rows[0]["status"]) == 1)
             {
                 return Ok(Utility.ResponseMessages("", "data is already approved", false));
             }
             // take history
             // if (Utility.createHistory(DbConn, "update", status.userId, "tblformData", "parent_code in(select MenuCode from tblMenus where ParentCode='" + status.branch_code + "')"))
             // { 
-            changestatus = "update  tblformData set district_status='" + status.status + "',Reason='" + status.reason + "' where branch_code='" + status.branch_code + "' and ";
+            changestatus = "update  tblapproveRejectBudget set status='" + status.status + "',Reason='" + status.reason + "' where branch_code='" + status.branch_code + "' and parentcode='" + status.parentcode + "' ";
             if (DbConn.Execute(changestatus))
             {
                 if (Convert.ToInt16(status.status) == 1)
-                    return Ok(Utility.ResponseMessages("", "data is approved succesfully", false));
+                    return Ok(new ApiResponse<object>
+                    {
+                        Message = "the data is approved succesfully",
+                        Success = true
+                    });
                 else if (Convert.ToInt16(status.status) == 2)
-                    return Ok(Utility.ResponseMessages("", "data is rejected", false));
+                    return Ok(new ApiResponse<object>
+                    {
+                        Message = "the data is rejected  succesfully",
+                        Success = true
+                    });
                 else
-                    return Ok(Utility.ResponseMessages("", "invalid status", false));
+                    return BadRequest(new ApiResponse<object>
+                    {
+                        Message = "invalid status",
+                        Success = false
+                    });
             }
             else
-                return BadRequest(Utility.ResponseMessages("", "something went wrong please try againg", false));
-            // }
-            // else
-            // {
-            //     return StatusCode(StatusCodes.Status500InternalServerError, "cannot create history");
-            // }
+                return BadRequest(new ApiResponse<object>
+                {
+                    Message = ErrorMessages.UnexpectedError,
+                    Success = false
+                });
+
         }
         catch (Exception ex)
         {
