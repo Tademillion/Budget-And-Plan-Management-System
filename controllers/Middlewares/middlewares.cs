@@ -26,14 +26,14 @@ public class RequestLoggingMiddleware
             using (var reader = new StreamReader(context.Request.Body, Encoding.UTF8, leaveOpen: true))
             {
                 var body = await reader.ReadToEndAsync();
-                _logger.LogInformation("Request Body: {Body}", body);
+                // _logger.LogInformation("Request Body: {Body}", body);
                 context.Request.Body.Seek(0, SeekOrigin.Begin);
             }
             await _next(context);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while processing the request.");
+            _logger.LogError(ex, "An error occurred while processing the request.", ex);
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -50,6 +50,7 @@ public class RequestLoggingMiddleware
         };
         // Serialize the error message to JSON and write it to the response
         var jsonResponse = System.Text.Json.JsonSerializer.Serialize(errorMessage);
+
         return context.Response.WriteAsync(jsonResponse);
     }
 }

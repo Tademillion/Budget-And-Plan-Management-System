@@ -31,6 +31,7 @@ public class SaveandSubmit : ControllerBase
             dt = DbConn.GetDataTable("tblFormdata");
             drow = dt.NewRow();
             // ,crtby,crtws,crtdt
+            //  prevent the saved data
             DataTable dt2 = new DataTable();
             foreach (var m in data)
             {
@@ -195,14 +196,22 @@ public class SaveandSubmit : ControllerBase
                     //return Ok(Utility.ResponseMessage("something went wrong please check your input", false));
                 }
             }
-            return Ok(Utility.ResponseMessage("data is updated", false));
+            return Ok(new ApiResponse<object>
+            {
+                Message = "the data is updated Succesfully",
+                Success = true
+            });
         }
         catch (Exception ex)
         {
             // set log
             var url = HttpContext.Request.Host + HttpContext.Request.Path;
             Utility.setLog(url, ex.Message, Dns.GetHostName());
-            return StatusCode(StatusCodes.Status500InternalServerError, ErrorMessages.UnexpectedError);
+            return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse<object>
+            {
+                Message = ErrorMessages.UnexpectedError,
+                Success = false
+            });
         }
         finally
         {
