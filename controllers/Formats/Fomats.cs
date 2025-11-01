@@ -239,49 +239,12 @@ public class getFormats : ControllerBase
         List<object> sources = new List<object>();
         try
         {
-            string formatName = string.Empty; string formatID = string.Empty;
-            DataTable dt = new DataTable();
-            string source = @"DECLARE @jsonResult NVARCHAR(MAX);
-SELECT @jsonResult = (
-    SELECT  
-        m.Id AS MainFormatId,  
-        m.Description AS Description,  
-        ISNULL((
-            SELECT  
-                s.Id,  
-                s.Description
-            FROM tblSubFormats s  
-            WHERE s.ParentCode = m.formatId
-            FOR JSON PATH
-        ), '[]') AS SubFormats  
-    FROM tblSubMainFormats m   
-    WHERE m.parentcode = '" + parentcode + "'  FOR JSON PATH);SELECT @jsonResult AS JsonResult;";
-            DbConn.FillData(dt, source);
-            object resultValue = dt.Rows[0][0];
-
-            if (resultValue != null && resultValue != DBNull.Value && !string.IsNullOrEmpty(resultValue.ToString()))
-            {
-                List<object> result = new List<object>();
-                string json = dt.Rows[0][0].ToString();
-                var jsonObj = System.Text.Json.JsonSerializer.Deserialize<object>(json);
-                result.Add(jsonObj);
-
-                return Ok(new ApiResponse<object>
-                {
-                    Success = true,
-                    Message = "Data retrieved successfully.",
-                    Data = result
-                });
-            }
-            return NotFound(new ApiResponse<object>
-            {
-                Success = true,
-                Message = "The Data for this Code is not exist.",
-            });
+            return Ok(FormatServices.GetFormatByLevel(DbConn, parentcode));
 
         }
         catch (Exception ex)
         {
+
             throw new Exception(ex.Message);
         }
         finally
@@ -393,4 +356,218 @@ SELECT @jsonResult = (
     }
 
 
+    //  add
+
+    [HttpPost("addSubMainFormats")]
+    [BaseUrlRoute()]
+    public async Task<ActionResult> addSubMainFormats([FromBody] Formats format)
+    {
+        if (format == null || string.IsNullOrEmpty(format.discription))
+        {
+            return BadRequest(" invalid menu");
+        }
+        DbConn.OpenConn();
+        try
+        {
+            DataTable dt;
+            DataRow drow;
+            dt = DbConn.GetDataTable("tblSubMainFormats");
+            drow = dt.NewRow();
+            string nextnum = Utility.getnextnum(DbConn, format.parentcode);
+            if (Convert.ToInt32(nextnum) < 1)
+            {
+                return NotFound(new
+                {
+                    Success = false,
+                    StatusCode = 200,
+                    Message = "the parent Code is not exist"
+                });
+            }
+            drow["description"] = format.discription;
+            drow["parentcode"] = format.parentcode;
+            drow["formatId"] = format.parentcode + nextnum;
+            drow["crtby"] = Dns.GetHostName();
+            drow["crtws"] = Dns.GetHostName();
+            drow["crtdt"] = DateTime.Now;
+            string query = DbconUtility.GetQuery(1, drow);
+            if (DbConn.Insert(drow, false))
+            {
+                int num = Convert.ToInt32(nextnum);
+                Utility.Updatemnextnum(DbConn, num, format.parentcode);
+            }
+            return Ok(new
+            {
+                Success = true,
+                StatusCode = 200,
+                Message = SuccessMessages.FormatAddedSucces
+            });
+        }
+        catch (Exception ex)
+        {
+            var url = HttpContext.Request.Host + HttpContext.Request.Path;
+            Utility.setLog(url, ex.Message, Dns.GetHostName());
+            Console.WriteLine(ex);
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                Success = false,
+                Message = ErrorMessages.UnexpectedError,
+            });
+        }
+        finally
+        {
+            DbConn.CloseConn();
+        }
+    }
+    //   update subMainformats
+    [HttpPut("updateSubMainFormats/{formatId}")]
+    [BaseUrlRoute()]
+    public async Task<ActionResult> updateSubMainFormats(string formatId, string parentcode, [FromBody] UpdateformatModel model)
+    {
+        try
+        {
+            //  check existence of the id
+            DataTable dt = new DataTable();
+            string checkformatid = "select * from tblSubMainFormats where formatId='" + formatId + "' ";
+            DbConn.FillData(dt, checkformatid);
+            if (dt.Rows.Count < 1)
+                return NotFound(new ApiResponse<object>
+                {
+                    Message = "the data with give Id Is not exist",
+                    Success = true
+                });
+            string query = "update tblSubMainFormats set parentcode='" + model.parentcode + "' , description='" + model.description + "' where formatId='" + formatId + "'";
+            DbConn.Execute(query);
+
+            return Ok(new ApiResponse<object>
+            {
+                Message = "the data is updated succesfully",
+                Success = true
+            });
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Ok(new ApiResponse<object>
+            {
+                Message = ErrorMessages.UnexpectedError,
+                Success = false
+            });
+
+        }
+    }
+
+    //   update subformats
+    [HttpPut("updateSubFormats/{formatId}")]
+    [BaseUrlRoute()]
+    public async Task<ActionResult> updateSubFormats(string formatId, string parentcode, [FromBody] UpdateformatModel model)
+    {
+        try
+        {
+            DataTable dt = new DataTable();
+            string checkformatid = "select * from tblSubFormats where formatId='" + formatId + "' ";
+            DbConn.FillData(dt, checkformatid);
+            if (dt.Rows.Count < 1)
+                return NotFound(new ApiResponse<object>
+                {
+                    Message = "the data with give Id Is not exist",
+                    Success = true
+                });
+            string query = "update tblSubFormats set parentcode='" + model.parentcode + "' , description='" + model.description + "' where formatId='" + formatId + "'";
+            DbConn.Execute(query);
+
+            return Ok(new ApiResponse<object>
+            {
+                Message = "the data is updated succesfully",
+                Success = true
+            });
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Ok(new ApiResponse<object>
+            {
+                Message = ErrorMessages.UnexpectedError,
+                Success = false
+            });
+
+        }
+    }
+
+    //   delete subMainformats
+    [HttpDelete("deleteSubMainFormats/{formatId}")]
+    [BaseUrlRoute()]
+    public async Task<ActionResult> deleteSubMainFormats(string formatId)
+    {
+        try
+        {
+            DataTable dt = new DataTable();
+            string checkformatid = "select * from tblSubMainFormats where formatId='" + formatId + "' ";
+            DbConn.FillData(dt, checkformatid);
+            if (dt.Rows.Count < 1)
+                return NotFound(new ApiResponse<object>
+                {
+                    Message = "the data with give Id Is not exist",
+                    Success = true
+                });
+            string query = "delete tblSubMainFormats where formatId='" + formatId + "' ";
+            DbConn.Execute(query);
+
+            return Ok(new ApiResponse<object>
+            {
+                Message = "the data is updated succesfully",
+                Success = true
+            });
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Ok(new ApiResponse<object>
+            {
+                Message = ErrorMessages.UnexpectedError,
+                Success = false
+            });
+
+        }
+    }
+
+    //   delete subformats
+    [HttpDelete("deleteSubFormats/{formatId}")]
+    [BaseUrlRoute()]
+    public async Task<ActionResult> deleteSubFormats(string formatId)
+    {
+        try
+        {
+            DataTable dt = new DataTable();
+            string checkformatid = "select * from tblSubFormats where formatId='" + formatId + "' ";
+            DbConn.FillData(dt, checkformatid);
+            if (dt.Rows.Count < 1)
+                return NotFound(new ApiResponse<object>
+                {
+                    Message = "the data with give Id Is not exist",
+                    Success = true
+                });
+            string query = "delete tblSubFormats where formatId='" + formatId + "' ";
+            DbConn.Execute(query);
+
+            return Ok(new ApiResponse<object>
+            {
+                Message = "the data is updated succesfully",
+                Success = true
+            });
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Ok(new ApiResponse<object>
+            {
+                Message = ErrorMessages.UnexpectedError,
+                Success = false
+            });
+
+        }
+    }
 }
