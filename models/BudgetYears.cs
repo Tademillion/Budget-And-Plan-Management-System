@@ -9,6 +9,7 @@ public class BudgetYear
 }
 public class updateBudgetYearModel
 {
+    public string budgetYear { get; set; }
     public DateTime openingDate { get; set; }
     public DateTime closingDate { get; set; }
 }

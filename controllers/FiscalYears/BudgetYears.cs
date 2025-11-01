@@ -47,13 +47,13 @@ public class BudgetYears : ControllerBase
         }
     }
 
-    [HttpPut("updateBudgetFall/{budgetyear}")]
+    [HttpPut("updateBudgetFall")]
     [BaseUrlRoute()]
-    public async Task<ActionResult> UpdateBudgetYears(string budgetyear, [FromBody] updateBudgetYearModel budget)
+    public async Task<ActionResult> UpdateBudgetYears([FromBody] updateBudgetYearModel budget)
     {
         try
         {
-            string query = "update  tblBudgetYear set openingDate='" + budget.openingDate + "',closingDate='" + budget.closingDate + "' where FiscalYear='" + budgetyear + "'";
+            string query = "update  tblBudgetYear set openingDate='" + budget.openingDate + "',closingDate='" + budget.closingDate + "' where FiscalYear='" + budget.budgetYear + "'";
             DbConn.Execute(query);
             return Ok(new ApiResponse<object>
             {
