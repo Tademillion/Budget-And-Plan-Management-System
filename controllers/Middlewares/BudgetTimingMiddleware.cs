@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BudgetP
@@ -20,6 +21,12 @@ namespace BudgetP
 
             bool isOpen = Utility.IsBudgetOpen();
             _logger.LogInformation("Budget status: {Status}", isOpen);
+            var response = new
+            {
+                Success = false,
+                Message = "Budget Is Not Open at this Time. Please Contact Budget and Plan Departments."
+            };
+
 
             if (!isOpen)
             {
@@ -29,7 +36,7 @@ namespace BudgetP
                 context.Result = new ContentResult
                 {
                     StatusCode = StatusCodes.Status403Forbidden,
-                    Content = "No open budget for today."
+                    Content = JsonSerializer.Serialize(response),
                 };
 
                 return;

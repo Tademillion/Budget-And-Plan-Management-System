@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 namespace BudgetP;
 
-[EnableCors("AllowSpecificOrigins")]
+[ServiceFilter(typeof(BudgetTimingFilter))]
 public class SaveandSubmit : ControllerBase
 {
     DbconUtility DbConn = new DbconUtility(DbconUtility.GetConn("Budgetplanconnstring"));

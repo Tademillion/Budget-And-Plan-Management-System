@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BudgetP;
 
 [ApiController]
-[ServiceFilter(typeof(BudgetTimingFilter))]
+// [ServiceFilter(typeof(BudgetTimingFilter))]
 public class BudgetYears : ControllerBase
 {
 
@@ -49,7 +49,7 @@ public class BudgetYears : ControllerBase
 
     [HttpPut("updateBudgetFall/{budgetyear}")]
     [BaseUrlRoute()]
-    public async Task<ActionResult> UpdateBudgetYears([FromBody] updateBudgetYearModel budget, string budgetyear)
+    public async Task<ActionResult> UpdateBudgetYears(string budgetyear, [FromBody] updateBudgetYearModel budget)
     {
         try
         {
